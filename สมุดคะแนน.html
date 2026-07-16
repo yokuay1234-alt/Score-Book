@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+<title>สมุดคะแนน</title>
+<meta name="theme-color" content="#ECE4D3" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="สมุดคะแนน" />
+<meta name="mobile-web-app-capable" content="yes" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='16' fill='%232B2620'/%3E%3Ctext x='50' y='66' font-size='52' text-anchor='middle' fill='%23F7F2E7' font-family='sans-serif'%3E%E0%B8%84%3C/text%3E%3C/svg%3E" />
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%232B2620'/%3E%3Ctext x='50' y='66' font-size='52' text-anchor='middle' fill='%23F7F2E7' font-family='sans-serif'%3E%E0%B8%84%3C/text%3E%3C/svg%3E" />
+<style>
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; padding: 0; background: #ECE4D3; }
+body {
+  min-height: 100vh; min-height: 100dvh;
+  background-image: radial-gradient(circle at 1px 1px, rgba(43,38,32,0.06) 1px, transparent 0);
+  background-size: 22px 22px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans Thai UI", "Leelawadee UI", sans-serif;
+  color: #2B2620;
+}
+#root { display: flex; justify-content: center; padding: max(24px, env(safe-area-inset-top)) 16px calc(60px + env(safe-area-inset-bottom)); min-height: 100vh; min-height: 100dvh; }
+.sheet { position: relative; width: 100%; max-width: 460px; background: #F7F2E7; border: 1px solid #D8CFC0; border-radius: 4px;
+  box-shadow: 0 1px 0 #fff inset, 0 18px 40px -20px rgba(43,38,32,0.35); padding: 34px 26px 30px; }
+.perf { position: absolute; top: 0; left: 24px; right: 24px; height: 1px;
+  background: repeating-linear-gradient(90deg, #C9A227 0 6px, transparent 6px 12px); opacity: 0.5; }
+.topRow { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.backBtn { display: flex; align-items: center; gap: 5px; background: transparent; border: none;
+  color: #8a7a63; font-size: 12.5px; font-weight: 600; cursor: pointer; padding: 0; font-family: inherit; }
+.moreBtn { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;
+  background: transparent; border: 1.5px solid #D8CFC0; border-radius: 8px; color: #6b5f4d; cursor: pointer; font-size: 16px; }
+.header { text-align: center; margin-bottom: 22px; }
+.eyebrow { font-size: 11px; letter-spacing: 0.14em; color: #B7472A; font-weight: 600; margin-bottom: 6px; }
+.title { font-weight: 700; font-size: 22px; margin: 0; color: #2B2620; }
+.shelf { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; }
+.nbCard { position: relative; display: flex; align-items: center; gap: 12px; background: #fff;
+  border: 1px solid #D8CFC0; border-radius: 8px; padding: 14px 14px 14px 0; cursor: pointer;
+  text-align: left; font-family: inherit; overflow: hidden; width: 100%; }
+.nbSpine { width: 8px; align-self: stretch; border-radius: 3px 0 0 3px; flex-shrink: 0; }
+.nbBody { flex: 1; min-width: 0; }
+.nbName { font-size: 15px; font-weight: 700; color: #2B2620; }
+.nbMeta { font-size: 11.5px; color: #8a7a63; margin-top: 3px; }
+.nbPoints { font-weight: 700; font-size: 20px; color: #2B2620; padding-right: 4px; }
+.nbDelete { position: absolute; top: 6px; right: 6px; width: 24px; height: 24px; border: none;
+  background: transparent; color: #cabfa8; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; border-radius: 6px; font-size: 13px; }
+.badgeSection { display: flex; flex-direction: column; align-items: center; position: relative; margin-bottom: 8px; }
+.stampWrap { position: relative; width: 172px; height: 172px; display: flex; align-items: center;
+  justify-content: center; margin-bottom: 18px; }
+.stampRing { position: absolute; inset: 0; width: 100%; height: 100%; }
+.stampInner { text-align: center; }
+.stampNumber { font-weight: 700; font-size: 46px; line-height: 1; color: #2B2620; }
+.stampLabel { font-size: 12px; letter-spacing: 0.08em; color: #8a7a63; margin-top: 4px; }
+.flash { position: absolute; top: 30px; font-weight: 700; font-size: 20px;
+  animation: floatUp 0.9s ease-out forwards; pointer-events: none; }
+.flashUp { color: #4C7A5E; }
+.flashDown { color: #B7472A; }
+@keyframes floatUp { 0% { opacity: 0; transform: translateY(6px); } 20% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-26px); } }
+.quickRow { display: flex; gap: 10px; margin-bottom: 14px; }
+.quickBtn { display: flex; align-items: center; gap: 6px; background: #2B2620; color: #F7F2E7;
+  border: none; border-radius: 999px; padding: 9px 16px; font-family: inherit; font-size: 13px;
+  font-weight: 600; cursor: pointer; }
+.quickBtnMinus { background: transparent; color: #B7472A; border: 1.5px solid #B7472A; }
+.customRow { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.customInput { flex: 1; min-width: 0; border: 1.5px solid #D8CFC0; background: #fff; border-radius: 8px;
+  padding: 9px 12px; font-family: inherit; font-size: 14px; color: #2B2620; }
+.customInput:focus { outline: none; border-color: #C9A227; }
+.iconBtn { width: 36px; height: 36px; flex-shrink: 0; border-radius: 8px; border: none;
+  display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 17px; color: #fff; }
+.plusBtn { background: #4C7A5E; }
+.minusBtn { background: #B7472A; }
+.divider { display: flex; align-items: center; gap: 10px; margin: 26px 0 16px; color: #8a7a63;
+  font-size: 12px; letter-spacing: 0.1em; }
+.divider::before, .divider::after { content: ""; flex: 1; height: 1px;
+  background: repeating-linear-gradient(90deg, #C9A227 0 5px, transparent 5px 10px); }
+.rewardList { display: flex; flex-direction: column; gap: 10px; }
+.emptyState { text-align: center; font-size: 13px; color: #8a7a63; padding: 18px 10px;
+  border: 1.5px dashed #D8CFC0; border-radius: 8px; }
+.ticket { position: relative; display: flex; align-items: center; justify-content: space-between;
+  gap: 10px; background: #fff; border: 1.5px dashed #C9A227; border-radius: 8px; padding: 12px 16px; }
+.ticketNotch { position: absolute; width: 14px; height: 14px; background: #F7F2E7; border-radius: 50%;
+  top: 50%; transform: translateY(-50%); }
+.ticketNotchLeft { left: -8px; border-right: 1.5px dashed #C9A227; }
+.ticketNotchRight { right: -8px; border-left: 1.5px dashed #C9A227; }
+.ticketBody { min-width: 0; }
+.ticketNameRow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.ticketName { font-size: 14.5px; font-weight: 600; color: #2B2620; overflow: hidden; text-overflow: ellipsis;
+  white-space: nowrap; max-width: 160px; }
+.typeTag { display: inline-flex; align-items: center; gap: 3px; font-size: 10px; font-weight: 700;
+  padding: 2px 7px; border-radius: 999px; white-space: nowrap; }
+.typeTagRepeat { background: #E5EFE8; color: #4C7A5E; }
+.typeTagOnce { background: #F3E7EE; color: #8A5A9E; }
+.ticketCost { font-size: 12px; color: #B7472A; margin-top: 4px; font-weight: 600; }
+.ticketActions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.exchangeBtn { display: flex; align-items: center; gap: 5px; background: #2B2620; color: #F7F2E7;
+  border: none; border-radius: 999px; padding: 7px 13px; font-family: inherit; font-size: 12.5px;
+  font-weight: 600; cursor: pointer; }
+.exchangeBtnDisabled { background: #E4DCC9; color: #a99d84; cursor: not-allowed; }
+.deleteBtn { width: 30px; height: 30px; border: none; background: transparent; color: #b9ac93;
+  display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 6px; font-size: 13px; }
+.addRewardBtn { width: 100%; margin-top: 16px; display: flex; align-items: center; justify-content: center;
+  gap: 6px; background: transparent; border: 1.5px solid #2B2620; color: #2B2620; border-radius: 8px;
+  padding: 11px; font-family: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer; }
+.addForm { margin-top: 16px; border: 1.5px solid #D8CFC0; border-radius: 8px; padding: 14px; background: #fff;
+  display: flex; flex-direction: column; gap: 8px; }
+.addInput { border: 1.5px solid #D8CFC0; border-radius: 8px; padding: 9px 12px; font-family: inherit; font-size: 14px; width: 100%; }
+.addInput:focus { outline: none; border-color: #C9A227; }
+.typeChooser { display: flex; gap: 8px; margin-top: 2px; }
+.typeChoice { flex: 1; display: flex; align-items: center; gap: 7px; border: 1.5px solid #D8CFC0;
+  border-radius: 8px; padding: 9px 10px; background: #fdfbf6; cursor: pointer; text-align: left; color: #6b5f4d;
+  font-family: inherit; }
+.typeChoiceActive { border-color: #2B2620; background: #2B2620; color: #F7F2E7; }
+.typeChoiceText { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.typeChoiceTitle { font-size: 12px; font-weight: 700; }
+.typeChoiceDesc { font-size: 10px; opacity: 0.75; line-height: 1.2; }
+.addFormActions { display: flex; gap: 8px; margin-top: 2px; }
+.confirmBtn, .cancelBtn { flex: 1; display: flex; align-items: center; justify-content: center; gap: 5px;
+  border: none; border-radius: 8px; padding: 9px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; }
+.confirmBtn { background: #4C7A5E; color: #fff; }
+.cancelBtn { background: #EFE7D6; color: #6b5f4d; }
+.errorNote { margin-top: 14px; font-size: 12px; color: #B7472A; text-align: center; }
+.historyOverlay { position: fixed; inset: 0; background: rgba(43,38,32,0.42); display: flex;
+  align-items: flex-end; justify-content: center; z-index: 50; }
+.historyPanel { width: 100%; max-width: 460px; max-height: 78vh; background: #F7F2E7;
+  border-top-left-radius: 16px; border-top-right-radius: 16px; border: 1px solid #D8CFC0;
+  padding: 18px 20px calc(22px + env(safe-area-inset-bottom)); display: flex; flex-direction: column;
+  box-shadow: 0 -12px 30px -10px rgba(43,38,32,0.35); }
+.historyHead { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.historyTitle { font-weight: 700; font-size: 18px; color: #2B2620; }
+.historyClose { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
+  background: transparent; border: none; color: #8a7a63; cursor: pointer; border-radius: 6px; font-size: 15px; }
+.historyTabs { display: flex; gap: 8px; margin-bottom: 14px; }
+.historyTab { flex: 1; display: flex; align-items: center; justify-content: center; gap: 5px;
+  border: 1.5px solid #D8CFC0; background: #fff; border-radius: 999px; padding: 8px 10px;
+  font-family: inherit; font-size: 12.5px; font-weight: 600; color: #6b5f4d; cursor: pointer; }
+.historyTabActive { background: #2B2620; border-color: #2B2620; color: #F7F2E7; }
+.historyList { overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-right: 2px; }
+.historyItem { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: #fff;
+  border: 1px solid #EAE2D0; border-radius: 8px; padding: 10px 12px; }
+.historyItemText { min-width: 0; }
+.historyItemReason { font-size: 13px; font-weight: 600; color: #2B2620; overflow: hidden; text-overflow: ellipsis;
+  white-space: nowrap; max-width: 240px; }
+.historyItemTs { font-size: 11px; color: #a99d84; margin-top: 2px; }
+.historyItemAmt { font-weight: 700; font-size: 15px; flex-shrink: 0; }
+.historyItemAmtUp { color: #4C7A5E; }
+.historyItemAmtDown { color: #B7472A; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+(function () {
+  "use strict";
+  var STORAGE_KEY = "reading-rewards:notebooks";
+  var PALETTE = ["#B7472A", "#4C7A5E", "#3E6B8F", "#8A5A9E", "#C9A227", "#B0563E"];
+
+  var DEFAULT_NOTEBOOKS = [
+    { id: "nb1", name: "อ่านหนังสือ", unit: "หน้า", points: 100,
+      rewards: [
+        { id: "r1", name: "ดูซีรีส์ 1 ตอน", cost: 30, type: "repeat" },
+        { id: "r2", name: "ซื้อขนมที่อยากกิน", cost: 50, type: "once" },
+        { id: "r3", name: "เล่นเกม 1 ชั่วโมง", cost: 80, type: "repeat" }
+      ], log: [] }
+  ];
+
+  function uid() { return Math.random().toString(36).slice(2, 9); }
+  function esc(s) {
+    var d = document.createElement("div");
+    d.textContent = String(s == null ? "" : s);
+    return d.innerHTML;
+  }
+  function formatTs(ts) {
+    try {
+      var d = new Date(ts);
+      var months = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
+      var hh = String(d.getHours()).padStart(2, "0");
+      var mm = String(d.getMinutes()).padStart(2, "0");
+      return d.getDate() + " " + months[d.getMonth()] + " " + hh + ":" + mm;
+    } catch (e) { return ""; }
+  }
+  function colorFor(id) {
+    var h = 0;
+    for (var i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) % PALETTE.length;
+    return PALETTE[h];
+  }
+
+  function loadNotebooks() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        var parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {}
+    return DEFAULT_NOTEBOOKS;
+  }
+
+  var S = {
+    notebooks: loadNotebooks(),
+    view: "home",
+    activeId: null,
+    showCreate: false,
+    showAddReward: false,
+    newRewardType: "repeat",
+    showHistory: false,
+    historyTab: "add",
+    flash: null,
+    error: ""
+  };
+
+  function persist() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(S.notebooks));
+      S.error = "";
+    } catch (e) {
+      S.error = "บันทึกข้อมูลไม่สำเร็จ ลองอีกครั้ง";
+    }
+  }
+
+  function getActive() {
+    for (var i = 0; i < S.notebooks.length; i++) if (S.notebooks[i].id === S.activeId) return S.notebooks[i];
+    return null;
+  }
+
+  function updateActive(fn) {
+    var nb = getActive();
+    if (!nb) return;
+    fn(nb);
+    persist();
+    render();
+  }
+
+  function triggerFlash(text) {
+    S.flash = text;
+    render();
+    setTimeout(function () { S.flash = null; render(); }, 900);
+  }
+
+  // ---------- actions ----------
+  function createNotebook() {
+    var nameEl = document.getElementById("newNbName");
+    var unitEl = document.getElementById("newNbUnit");
+    var name = nameEl ? nameEl.value.trim() : "";
+    var unit = unitEl ? unitEl.value.trim() : "";
+    if (!name) return;
+    var nb = { id: uid(), name: name, unit: unit || "ครั้ง", points: 0, rewards: [], log: [] };
+    S.notebooks.push(nb);
+    persist();
+    S.showCreate = false;
+    S.activeId = nb.id;
+    S.view = "detail";
+    render();
+  }
+
+  function deleteNotebook(id, ev) {
+    ev.stopPropagation();
+    S.notebooks = S.notebooks.filter(function (n) { return n.id !== id; });
+    persist();
+    render();
+  }
+
+  function openNotebook(id) {
+    S.activeId = id;
+    S.view = "detail";
+    S.showAddReward = false;
+    S.showHistory = false;
+    S.historyTab = "add";
+    render();
+  }
+
+  function goHome() {
+    S.view = "home";
+    S.showCreate = false;
+    render();
+  }
+
+  function addPoints(amt, reason) {
+    if (!amt) return;
+    updateActive(function (n) {
+      n.points += amt;
+      n.log.unshift({ id: uid(), amt: amt, reason: reason, ts: Date.now() });
+      n.log = n.log.slice(0, 30);
+    });
+    triggerFlash(amt > 0 ? ("+" + amt) : String(amt));
+  }
+
+  function submitCustom(sign) {
+    var el = document.getElementById("customAmt");
+    var n = el ? parseInt(el.value, 10) : NaN;
+    if (Number.isFinite(n) && n > 0) {
+      addPoints(sign * n, sign > 0 ? "เพิ่มคะแนน" : "หักคะแนน");
+      if (el) el.value = "";
+    }
+  }
+
+  function addReward() {
+    var nameEl = document.getElementById("newRewardName");
+    var costEl = document.getElementById("newRewardCost");
+    var name = nameEl ? nameEl.value.trim() : "";
+    var cost = costEl ? parseInt(costEl.value, 10) : NaN;
+    if (!name || !Number.isFinite(cost) || cost <= 0) return;
+    updateActive(function (n) {
+      n.rewards.push({ id: uid(), name: name, cost: cost, type: S.newRewardType });
+    });
+    S.showAddReward = false;
+    S.newRewardType = "repeat";
+    render();
+  }
+
+  function deleteReward(id) {
+    updateActive(function (n) {
+      n.rewards = n.rewards.filter(function (r) { return r.id !== id; });
+    });
+  }
+
+  function redeem(id) {
+    var nb = getActive();
+    if (!nb) return;
+    var reward = null;
+    for (var i = 0; i < nb.rewards.length; i++) if (nb.rewards[i].id === id) reward = nb.rewards[i];
+    if (!reward || nb.points < reward.cost) return;
+    updateActive(function (n) {
+      n.points -= reward.cost;
+      if (reward.type === "once") n.rewards = n.rewards.filter(function (r) { return r.id !== reward.id; });
+      n.log.unshift({ id: uid(), amt: -reward.cost, reason: "แลก: " + reward.name, ts: Date.now() });
+      n.log = n.log.slice(0, 30);
+    });
+    triggerFlash("-" + reward.cost);
+  }
+
+  function setNewRewardType(t) { S.newRewardType = t; render(); }
+  function setHistoryTab(t) { S.historyTab = t; render(); }
+
+  // ---------- render ----------
+  function stampBadgeHtml(points) {
+    return '' +
+      '<div class="stampWrap">' +
+        '<svg viewBox="0 0 220 220" class="stampRing" aria-hidden="true">' +
+          '<circle cx="110" cy="110" r="98" fill="none" stroke="#B7472A" stroke-width="2.5" stroke-dasharray="3 7"></circle>' +
+          '<circle cx="110" cy="110" r="86" fill="none" stroke="#B7472A" stroke-width="1"></circle>' +
+        '</svg>' +
+        '<div class="stampInner">' +
+          '<div class="stampNumber">' + points + '</div>' +
+          '<div class="stampLabel">คะแนน</div>' +
+        '</div>' +
+      '</div>';
+  }
+
+  function renderHome() {
+    var cards = S.notebooks.map(function (n) {
+      return '' +
+        '<button class="nbCard" onclick="App.openNotebook(\'' + n.id + '\')">' +
+          '<div class="nbSpine" style="background:' + colorFor(n.id) + '"></div>' +
+          '<div class="nbBody">' +
+            '<div class="nbName">' + esc(n.name) + '</div>' +
+            '<div class="nbMeta">1 ' + esc(n.unit) + ' = 1 คะแนน</div>' +
+          '</div>' +
+          '<div class="nbPoints">' + n.points + '</div>' +
+          '<button class="nbDelete" onclick="App.deleteNotebook(\'' + n.id + '\', event)" aria-label="ลบสมุด">✕</button>' +
+        '</button>';
+    }).join("");
+
+    var createForm = S.showCreate ?
+      '<div class="addForm">' +
+        '<input class="addInput" id="newNbName" placeholder="ชื่อสมุด เช่น ลดเวลาเล่นโทรศัพท์" />' +
+        '<input class="addInput" id="newNbUnit" placeholder="หน่วยที่ได้ 1 คะแนน เช่น ชั่วโมงที่งดเล่น" />' +
+        '<div class="addFormActions">' +
+          '<button class="confirmBtn" onclick="App.createNotebook()">✓ สร้างสมุด</button>' +
+          '<button class="cancelBtn" onclick="App.cancelCreate()">✕ ยกเลิก</button>' +
+        '</div>' +
+      '</div>' :
+      '<button class="addRewardBtn" onclick="App.startCreate()">📓 สร้างสมุดสะสมคะแนนใหม่</button>';
+
+    return '' +
+      '<div class="sheet">' +
+        '<div class="perf"></div>' +
+        '<header class="header">' +
+          '<div class="eyebrow">สมุดสะสมคะแนนของฉัน</div>' +
+          '<h1 class="title">เลือกสมุด</h1>' +
+        '</header>' +
+        '<div class="shelf">' +
+          cards +
+          (S.notebooks.length === 0 ? '<div class="emptyState">ยังไม่มีสมุด — สร้างสมุดแรกของคุณด้านล่าง</div>' : '') +
+        '</div>' +
+        createForm +
+        (S.error ? '<div class="errorNote">' + esc(S.error) + '</div>' : '') +
+      '</div>';
+  }
+
+  function renderDetail() {
+    var nb = getActive();
+    if (!nb) { S.view = "home"; return renderHome(); }
+
+    var flashHtml = S.flash ?
+      '<div class="flash ' + (String(S.flash).indexOf("-") === 0 ? "flashDown" : "flashUp") + '">' + esc(S.flash) + '</div>' : '';
+
+    var sortedRewards = nb.rewards.slice().sort(function (a, b) { return a.cost - b.cost; });
+    var rewardsHtml = sortedRewards.map(function (r) {
+      var affordable = nb.points >= r.cost;
+      var tag = r.type === "once" ? '<span class="typeTag typeTagOnce">✨ ครั้งเดียว</span>' : '<span class="typeTag typeTagRepeat">🔁 ต่อเนื่อง</span>';
+      return '' +
+        '<div class="ticket">' +
+          '<div class="ticketNotch ticketNotchLeft"></div>' +
+          '<div class="ticketNotch ticketNotchRight"></div>' +
+          '<div class="ticketBody">' +
+            '<div class="ticketNameRow"><div class="ticketName">' + esc(r.name) + '</div>' + tag + '</div>' +
+            '<div class="ticketCost">' + r.cost + ' คะแนน</div>' +
+          '</div>' +
+          '<div class="ticketActions">' +
+            '<button class="exchangeBtn' + (affordable ? "" : " exchangeBtnDisabled") + '" ' + (affordable ? "" : "disabled") +
+              ' onclick="App.redeem(\'' + r.id + '\')">🎁 แลก</button>' +
+            '<button class="deleteBtn" onclick="App.deleteReward(\'' + r.id + '\')" aria-label="ลบรางวัล">🗑</button>' +
+          '</div>' +
+        '</div>';
+    }).join("");
+
+    var addRewardBlock = S.showAddReward ?
+      '<div class="addForm">' +
+        '<input class="addInput" id="newRewardName" placeholder="ชื่อรางวัล" />' +
+        '<input class="addInput" id="newRewardCost" type="number" inputmode="numeric" min="1" placeholder="คะแนนที่ใช้แลก" />' +
+        '<div class="typeChooser">' +
+          '<button type="button" class="typeChoice' + (S.newRewardType === "repeat" ? " typeChoiceActive" : "") + '" onclick="App.setNewRewardType(\'repeat\')">' +
+            '🔁<div class="typeChoiceText"><span class="typeChoiceTitle">รางวัลต่อเนื่อง</span><span class="typeChoiceDesc">แลกได้เรื่อยๆ ไม่หายไป</span></div>' +
+          '</button>' +
+          '<button type="button" class="typeChoice' + (S.newRewardType === "once" ? " typeChoiceActive" : "") + '" onclick="App.setNewRewardType(\'once\')">' +
+            '✨<div class="typeChoiceText"><span class="typeChoiceTitle">รางวัลครั้งเดียว</span><span class="typeChoiceDesc">แลกแล้วถูกลบออกจากลิสต์</span></div>' +
+          '</button>' +
+        '</div>' +
+        '<div class="addFormActions">' +
+          '<button class="confirmBtn" onclick="App.addReward()">✓ บันทึก</button>' +
+          '<button class="cancelBtn" onclick="App.cancelAddReward()">✕ ยกเลิก</button>' +
+        '</div>' +
+      '</div>' :
+      '<button class="addRewardBtn" onclick="App.startAddReward()">+ เพิ่มรางวัลใหม่</button>';
+
+    var historyEntries = nb.log.filter(function (e) { return S.historyTab === "add" ? e.amt > 0 : e.amt < 0; });
+    var historyItemsHtml = historyEntries.length === 0 ?
+      '<div class="emptyState">' + (S.historyTab === "add" ? "ยังไม่มีประวัติการเพิ่มคะแนน" : "ยังไม่มีประวัติการลดหรือแลกคะแนน") + '</div>' :
+      historyEntries.map(function (e) {
+        return '' +
+          '<div class="historyItem">' +
+            '<div class="historyItemText">' +
+              '<div class="historyItemReason">' + esc(e.reason) + '</div>' +
+              '<div class="historyItemTs">' + formatTs(e.ts) + '</div>' +
+            '</div>' +
+            '<div class="historyItemAmt ' + (e.amt > 0 ? "historyItemAmtUp" : "historyItemAmtDown") + '">' + (e.amt > 0 ? "+" + e.amt : e.amt) + '</div>' +
+          '</div>';
+      }).join("");
+
+    var historyHtml = S.showHistory ?
+      '<div class="historyOverlay" onclick="App.closeHistory()">' +
+        '<div class="historyPanel" onclick="event.stopPropagation()">' +
+          '<div class="historyHead">' +
+            '<div class="historyTitle">ประวัติคะแนน</div>' +
+            '<button class="historyClose" onclick="App.closeHistory()" aria-label="ปิด">✕</button>' +
+          '</div>' +
+          '<div class="historyTabs">' +
+            '<button class="historyTab' + (S.historyTab === "add" ? " historyTabActive" : "") + '" onclick="App.setHistoryTab(\'add\')">▲ เพิ่มคะแนน</button>' +
+            '<button class="historyTab' + (S.historyTab === "reduce" ? " historyTabActive" : "") + '" onclick="App.setHistoryTab(\'reduce\')">▼ ลด / แลกคะแนน</button>' +
+          '</div>' +
+          '<div class="historyList">' + historyItemsHtml + '</div>' +
+        '</div>' +
+      '</div>' : '';
+
+    return '' +
+      '<div class="sheet">' +
+        '<div class="perf"></div>' +
+        '<div class="topRow">' +
+          '<button class="backBtn" onclick="App.goHome()">← สมุดทั้งหมด</button>' +
+          '<button class="moreBtn" onclick="App.openHistory()" aria-label="ดูประวัติคะแนน">⋮</button>' +
+        '</div>' +
+        '<header class="header">' +
+          '<div class="eyebrow">' + esc(nb.name) + '</div>' +
+          '<h1 class="title">1 ' + esc(nb.unit) + ' = 1 คะแนน</h1>' +
+        '</header>' +
+        '<section class="badgeSection">' +
+          stampBadgeHtml(nb.points) +
+          flashHtml +
+          '<div class="quickRow">' +
+            '<button class="quickBtn" onclick="App.addPoints(1)">📖 ทำแล้ว +1</button>' +
+            '<button class="quickBtn quickBtnMinus" onclick="App.subPoints()">− หัก 1</button>' +
+          '</div>' +
+          '<div class="customRow">' +
+            '<input class="customInput" id="customAmt" type="number" inputmode="numeric" min="1" placeholder="ใส่จำนวน" />' +
+            '<button class="iconBtn plusBtn" onclick="App.submitCustom(1)" aria-label="เพิ่มคะแนน">+</button>' +
+            '<button class="iconBtn minusBtn" onclick="App.submitCustom(-1)" aria-label="หักคะแนน">−</button>' +
+          '</div>' +
+        '</section>' +
+        '<div class="divider"><span>รางวัลของฉัน</span></div>' +
+        '<section class="rewardList">' +
+          (nb.rewards.length === 0 ? '<div class="emptyState">ยังไม่มีรางวัล — กดปุ่มด้านล่างเพื่อเพิ่มรางวัลแรกของคุณ</div>' : '') +
+          rewardsHtml +
+        '</section>' +
+        addRewardBlock +
+        (S.error ? '<div class="errorNote">' + esc(S.error) + '</div>' : '') +
+        historyHtml +
+      '</div>';
+  }
+
+  function render() {
+    var root = document.getElementById("root");
+    root.innerHTML = S.view === "home" ? renderHome() : renderDetail();
+  }
+
+  window.App = {
+    openNotebook: openNotebook,
+    deleteNotebook: deleteNotebook,
+    goHome: goHome,
+    startCreate: function () { S.showCreate = true; render(); document.getElementById("newNbName").focus(); },
+    cancelCreate: function () { S.showCreate = false; render(); },
+    createNotebook: createNotebook,
+    addPoints: function (amt) { var nb = getActive(); addPoints(amt, nb ? (nb.unit + " +1") : "เพิ่ม 1"); },
+    subPoints: function () { addPoints(-1, "หัก 1 คะแนน"); },
+    submitCustom: submitCustom,
+    startAddReward: function () { S.showAddReward = true; render(); document.getElementById("newRewardName").focus(); },
+    cancelAddReward: function () { S.showAddReward = false; S.newRewardType = "repeat"; render(); },
+    addReward: addReward,
+    deleteReward: deleteReward,
+    redeem: redeem,
+    setNewRewardType: setNewRewardType,
+    openHistory: function () { S.showHistory = true; render(); },
+    closeHistory: function () { S.showHistory = false; render(); },
+    setHistoryTab: setHistoryTab
+  };
+
+  render();
+})();
+</script>
+</body>
+</html>
